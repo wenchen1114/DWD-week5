@@ -35,7 +35,7 @@ app.get("/all", (req, res) => {
 //get random band
 app.get("/random", (req, res) => {
     let bandGet= getBand();
-    res.json(bandGet.bands[Math.floor(Math.random() * bandGet.bands.length)]);
+    res.json(bandGet.bands[Math.floor(Math.random() * bandGet.length)]);
 });
 //add band
 app.post("/add",(req, res) =>{
