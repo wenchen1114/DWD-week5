@@ -6,48 +6,48 @@ let app = express();
 //let server = app.listen(3000, listening);
 
 app.use(express.static('public'));
+app.use(express.json());
 
+function getBand(){
 const content = fs.readFileSync(path.join(__dirname, "./band.json"));
 const obj = JSON.parse(content);
+return obj;
+}
 
 
 //search band by name
 app.get("/search/:name", (req, res) => {
     let bandName = req.params.name;
+    let bandGet= getBand();
     for(let i = 0; i< obj.length; i++ ){
-        if(bandName == obj[i].name){
-            res.json(obj[i]);
+        if(bandName == bandGet.bands[i].name){
+            res.json(bandGet.bands[i]);
+        }else{
+          console.log("Can't find this band");
         }
     }
 })
 //get all band
 app.get("/all", (req, res) => {
-    res.json(obj);
+    let bandGet= getBand();
+    res.json(bandGet);
   });
 //get random band
 app.get("/random", (req, res) => {
-    res.json(obj.bands[Math.floor(Math.random() * obj.length)]);
+    let bandGet= getBand();
+    res.json(bandGet.bands[Math.floor(Math.random() * bandGet.bands.length)]);
 });
 //add band
 app.post("/add",(req, res) =>{
+    let bandGet= getBand();
     let newData = {
         name: req.body.name,
         song: req.body.song
     }
-    obj.push(newData);
-    await writeFile(content, obj);
+    bandGet.push(newData);
+    fs.writeFileSync(path.join(__dirname, "./band.json"), JSON.stringify(bandGet));
+    res.json(bandGet);
 });
- 
-function writeFile(dataPath, data){
-    return new Promise( (resolve, reject) => {
-      fs.writeFile(dataPath, JSON.stringify(data), (err) => {
-        if(err){
-          return console.error(err)
-        } 
-        resolve(data);
-      })
-    })
-  }
 
 app.listen(PORT, () => {
     console.log('start...');
